@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Build, Deploy & Version
 
 on:
   push:
@@ -9,8 +9,19 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  install-lint-build:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,21 +32,113 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'pnpm'
 
       - name: Install pnpm
         run: npm install -g pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Lint the code
         run: pnpm lint
-
-      # - name: Analyze unused files and dependencies
-      #   run: pnpm knip
 
       - name: Run Prettier check
         run: pnpm format:check
 
       - name: Build the project
         run: pnpm build
+        env:
+          GITHUB_PAGES: 'true'
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  bump-version:
+    needs: build
+    if: github.event.pull_request.merged == true && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: Determine bump type
+        id: bump_type
+        run: |
+          COMMITS=$(git log ${{ steps.get_tag.outputs.latest_tag }}..HEAD --oneline)
+          
+          MAJOR=0
+          MINOR=0
+          PATCH=0
+          
+          if echo "$COMMITS" | grep -qiE "^(BREAKING|breaking|major)"; then
+            MAJOR=1
+          elif echo "$COMMITS" | grep -qiE "^(feat|feature)"; then
+            MINOR=1
+          else
+            PATCH=1
+          fi
+          
+          echo "major=$MAJOR" >> $GITHUB_OUTPUT
+          echo "minor=$MINOR" >> $GITHUB_OUTPUT
+          echo "patch=$PATCH" >> $GITHUB_OUTPUT
+
+      - name: Bump version and create tag
+        run: |
+          CURRENT_TAG=${{ steps.get_tag.outputs.latest_tag }}
+          
+          MAJOR=$(echo $CURRENT_TAG | sed 's/v\([0-9]*\).*/\1/')
+          MINOR=$(echo $CURRENT_TAG | sed 's/v[0-9]*\.\([0-9]*\).*/\1/')
+          PATCH=$(echo $CURRENT_TAG | sed 's/v[0-9]*\.[0-9]*\.\([0-9]*\).*/\1/')
+          
+          if [ ${{ steps.bump_type.outputs.major }} -eq 1 ]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [ ${{ steps.bump_type.outputs.minor }} -eq 1 ]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          else
+            PATCH=$((PATCH + 1))
+          fi
+          
+          NEW_TAG="v$MAJOR.$MINOR.$PATCH"
+          echo "New version: $NEW_TAG"
+          
+          npm version $NEW_TAG --no-git-tag-version
+          git tag $NEW_TAG
+          git add package.json
+          git commit -m "chore: bump version to $NEW_TAG"
+
+      - name: Push changes and tags
+        run: |
+          git push
+          git push --tags

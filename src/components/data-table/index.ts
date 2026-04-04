@@ -1,4 +1,5 @@
 export { DataTablePagination } from './pagination'
 export { DataTableColumnHeader } from './column-header'
-export { DataTableToolbar, getMonthOptions } from './toolbar'
+export { DataTableToolbar } from './toolbar'
+export { getMonthOptions } from './get-month-options'
 export { DataTableBulkActions } from './bulk-actions'

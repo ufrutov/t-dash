@@ -1,16 +1,13 @@
 'use client'
 
 import { useEffect } from 'react'
+import { type z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { toast } from 'sonner'
-import { useSupabase } from '@/hooks/use-supabase'
-import { createTask, updateTask, deleteTask } from '@/lib/tasks'
-import { taskFormSchema } from '../data/schema'
 import type { Task } from '@/types/task'
-
-type TaskForm = z.infer<typeof taskFormSchema>
+import { toast } from 'sonner'
+import { createTask, updateTask, deleteTask } from '@/lib/tasks'
+import { useSupabase } from '@/hooks/use-supabase'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -31,6 +28,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { SelectDropdown } from '@/components/select-dropdown'
+import { taskFormSchema } from '../data/schema'
+
+type TaskForm = z.infer<typeof taskFormSchema>
 
 type TaskActionDialogProps = {
   open: boolean
@@ -98,7 +98,9 @@ export function TaskActionDialog({
       onOpenChange(false)
       form.reset()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Something went wrong')
+      toast.error(
+        error instanceof Error ? error.message : 'Something went wrong'
+      )
     }
   }
 
@@ -112,7 +114,9 @@ export function TaskActionDialog({
       onOpenChange(false)
       form.reset()
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to delete task')
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to delete task'
+      )
     }
   }
 
@@ -131,8 +135,8 @@ export function TaskActionDialog({
           <DialogTitle>{isEdit ? 'Edit Task' : 'Add New Task'}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? 'Update the task here. Click save when you\'re done.'
-              : 'Create a new task here. Click save when you\'re done.'}
+              ? "Update the task here. Click save when you're done."
+              : "Create a new task here. Click save when you're done."}
           </DialogDescription>
         </DialogHeader>
         <div className='max-h-[60vh] overflow-y-auto py-1'>
@@ -244,7 +248,7 @@ export function TaskActionDialog({
               Delete
             </Button>
           )}
-          <div className='flex gap-2 ml-auto'>
+          <div className='ml-auto flex gap-2'>
             <Button type='submit' form='task-form'>
               {isEdit ? 'Update' : 'Save'}
             </Button>

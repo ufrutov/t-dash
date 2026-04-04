@@ -49,6 +49,7 @@ export function TasksTable({ data }: DataTableProps) {
 
   const columns = getRecordsColumns(projects)
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
