@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { IconFacebook, IconGithub } from '@/assets/brand-icons'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { Loader2 } from 'lucide-react'
+import { toast } from 'sonner'
+import { useAuth } from '@/hooks/use-auth'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,7 +28,7 @@ const formSchema = z
     password: z
       .string()
       .min(1, 'Please enter your password')
-      .min(7, 'Password must be at least 7 characters long'),
+      .min(6, 'Password must be at least 6 characters long'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -38,6 +41,8 @@ export function SignUpForm({
   ...props
 }: React.HTMLAttributes<HTMLFormElement>) {
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+  const { signUp } = useAuth()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,14 +53,17 @@ export function SignUpForm({
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
-
-    setTimeout(() => {
+    try {
+      await signUp(data.email, data.password)
+      toast.success('Account created! Please check your email to verify.')
+      navigate({ to: '/sign-in', replace: true })
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Sign up failed')
+    } finally {
       setIsLoading(false)
-    }, 3000)
+    }
   }
 
   return (
@@ -105,38 +113,16 @@ export function SignUpForm({
           )}
         />
         <Button className='mt-2' disabled={isLoading}>
+          {isLoading ? <Loader2 className='animate-spin' /> : null}
           Create Account
         </Button>
 
-        <div className='relative my-2'>
-          <div className='absolute inset-0 flex items-center'>
-            <span className='w-full border-t' />
-          </div>
-          <div className='relative flex justify-center text-xs uppercase'>
-            <span className='bg-background px-2 text-muted-foreground'>
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <div className='grid grid-cols-2 gap-2'>
-          <Button
-            variant='outline'
-            className='w-full'
-            type='button'
-            disabled={isLoading}
-          >
-            <IconGithub className='h-4 w-4' /> GitHub
-          </Button>
-          <Button
-            variant='outline'
-            className='w-full'
-            type='button'
-            disabled={isLoading}
-          >
-            <IconFacebook className='h-4 w-4' /> Facebook
-          </Button>
-        </div>
+        <p className='text-sm text-muted-foreground text-center mt-4'>
+          Already have an account?{' '}
+          <Link to='/sign-in' className='text-primary hover:underline'>
+            Sign in
+          </Link>
+        </p>
       </form>
     </Form>
   )

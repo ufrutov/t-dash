@@ -12,12 +12,14 @@ type DatePickerProps = {
   selected: Date | undefined
   onSelect: (date: Date | undefined) => void
   placeholder?: string
+  format?: string
 }
 
 export function DatePicker({
   selected,
   onSelect,
   placeholder = 'Pick a date',
+  format: dateFormat = 'dd/MM/yyyy',
 }: DatePickerProps) {
   return (
     <Popover>
@@ -27,11 +29,7 @@ export function DatePicker({
           data-empty={!selected}
           className='w-[240px] justify-start text-start font-normal data-[empty=true]:text-muted-foreground'
         >
-          {selected ? (
-            format(selected, 'MMM d, yyyy')
-          ) : (
-            <span>{placeholder}</span>
-          )}
+          {selected ? format(selected, dateFormat) : <span>{placeholder}</span>}
           <CalendarIcon className='ms-auto h-4 w-4 opacity-50' />
         </Button>
       </PopoverTrigger>
@@ -41,6 +39,7 @@ export function DatePicker({
           captionLayout='dropdown'
           selected={selected}
           onSelect={onSelect}
+          weekStartsOn={1}
           disabled={(date: Date) =>
             date > new Date() || date < new Date('1900-01-01')
           }

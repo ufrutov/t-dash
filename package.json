@@ -1,7 +1,7 @@
 {
-  "name": "shadcn-admin",
+  "name": "t-dash",
   "private": false,
-  "version": "2.2.1",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -33,6 +33,8 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@supabase/ssr": "^0.10.0",
+    "@supabase/supabase-js": "^2.101.1",
     "@tailwindcss/vite": "^4.2.2",
     "@tanstack/react-query": "^5.95.2",
     "@tanstack/react-router": "^1.168.4",

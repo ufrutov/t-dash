@@ -10,6 +10,8 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/stores/auth-store'
 import { handleServerError } from '@/lib/handle-server-error'
+import { AuthProvider } from './context/auth-context'
+import { SupabaseProvider } from './context/supabase-context'
 import { DirectionProvider } from './context/direction-provider'
 import { FontProvider } from './context/font-provider'
 import { ThemeProvider } from './context/theme-provider'
@@ -97,7 +99,11 @@ if (!rootElement.innerHTML) {
         <ThemeProvider>
           <FontProvider>
             <DirectionProvider>
-              <RouterProvider router={router} />
+              <AuthProvider>
+                <SupabaseProvider>
+                  <RouterProvider router={router} />
+                </SupabaseProvider>
+              </AuthProvider>
             </DirectionProvider>
           </FontProvider>
         </ThemeProvider>

@@ -19,4 +19,5 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  base: process.env.GITHUB_PAGES ? '/t-dash/' : '/',
 })

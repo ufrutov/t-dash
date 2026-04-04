@@ -1,119 +1,164 @@
-# Shadcn Admin Dashboard
+# T-Dash - Project & Time Tracking Dashboard
 
-Admin Dashboard UI crafted with Shadcn and Vite. Built with responsiveness and accessibility in mind.
+A project management dashboard built on top of shadcn-admin with time tracking and records management features.
 
-![alt text](public/images/shadcn-admin.png)
+![t-dash](public/images/t-dash.png)
 
-[![Sponsored by Clerk](https://img.shields.io/badge/Sponsored%20by-Clerk-5b6ee1?logo=clerk)](https://go.clerk.com/GttUAaK)
+## Overview
 
-I've been creating dashboard UIs at work and for my personal projects. I always wanted to make a reusable collection of dashboard UI for future projects; and here it is now. While I've created a few custom components, some of the code is directly adapted from ShadcnUI examples.
+T-Dash extends the shadcn-admin dashboard template with:
 
-> This is not a starter project (template) though. I'll probably make one in the future.
+- **Time Records Management** - Track time spent on projects with detailed records
+- **Calendar View** - Visualize time entries by month with totals
+- **Data Table** - Filter, sort, and manage records with advanced filtering
+- **Supabase Integration** - Backend-as-a-Service for data persistence
 
 ## Features
 
-- Light/dark mode
-- Responsive
-- Accessible
-- With built-in Sidebar component
-- Global search command
-- 10+ pages
-- Extra custom components
-- RTL support
+### Core Features
 
-<details>
-<summary>Customized Components (click to expand)</summary>
+- **Records Management** - CRUD operations for time tracking records
+- **Calendar View** - Monthly calendar showing time spent per day
+- **Project Filtering** - Filter records by project with record counts
+- **Month Filtering** - Filter records by month
+- **Data Table** - Sortable, filterable table with pagination
+- **Refresh Button** - Reload data on demand
 
-This project uses Shadcn UI components, but some have been slightly modified for better RTL (Right-to-Left) support and other improvements. These customized components differ from the original Shadcn UI versions.
+### Technical Features
 
-If you want to update components using the Shadcn CLI (e.g., `npx shadcn@latest add <component>`), it's generally safe for non-customized components. For the listed customized ones, you may need to manually merge changes to preserve the project's modifications and avoid overwriting RTL support or other updates.
-
-> If you don't require RTL support, you can safely update the 'RTL Updated Components' via the Shadcn CLI, as these changes are primarily for RTL compatibility. The 'Modified Components' may have other customizations to consider.
-
-### Modified Components
-
-- scroll-area
-- sonner
-- separator
-
-### RTL Updated Components
-
-- alert-dialog
-- calendar
-- command
-- dialog
-- dropdown-menu
-- select
-- table
-- sheet
-- sidebar
-- switch
-
-**Notes:**
-
-- **Modified Components**: These have general updates, potentially including RTL adjustments.
-- **RTL Updated Components**: These have specific changes for RTL language support (e.g., layout, positioning).
-- For implementation details, check the source files in `src/components/ui/`.
-- All other Shadcn UI components in the project are standard and can be safely updated via the CLI.
-
-</details>
+- **TanStack Table** - Advanced data table with faceted filtering
+- **React Day Picker** - Customized calendar component
+- **Supabase Client** - Context provider for Supabase integration
+- **TypeScript** - Full type safety throughout the codebase
+- **Zod Validation** - Form validation with Zod schemas
 
 ## Tech Stack
 
-**UI:** [ShadcnUI](https://ui.shadcn.com) (TailwindCSS + RadixUI)
+**Frontend:**
 
-**Build Tool:** [Vite](https://vitejs.dev/)
+- [React](https://react.dev/) with TypeScript
+- [Vite](https://vitejs.dev/) - Build tool
+- [TanStack Router](https://tanstack.com/router/latest) - Routing
+- [TanStack Table](https://tanstack.com/table/latest) - Data tables
+- [React Day Picker](https://daypicker.dev/) - Calendar component
+- [Shadcn UI](https://ui.shadcn.com/) - UI components
+- [TailwindCSS](https://tailwindcss.com/) - Styling
+- [date-fns](https://date-fns.org/) - Date utilities
+- [Zod](https://zod.dev/) - Schema validation
 
-**Routing:** [TanStack Router](https://tanstack.com/router/latest)
+**Backend:**
 
-**Type Checking:** [TypeScript](https://www.typescriptlang.org/)
+- [Supabase](https://supabase.com/) - Database & Authentication
 
-**Linting/Formatting:** [ESLint](https://eslint.org/) & [Prettier](https://prettier.io/)
+## Database Schema
 
-**Icons:** [Lucide Icons](https://lucide.dev/icons/), [Tabler Icons](https://tabler.io/icons) (Brand icons only)
+### Tables
 
-**Auth (partial):** [Clerk](https://go.clerk.com/GttUAaK)
+**domains** - Project domains/categories
 
-## Run Locally
+- `id` (serial) - Primary key
+- `title` (text) - Domain name
+- `description` (text) - Domain description
+- `created_at` (timestamptz) - Creation timestamp
 
-Clone the project
+**projects** - Projects within domains
+
+- `id` (serial) - Primary key
+- `domain_id` (integer) - Foreign key to domains
+- `title` (text) - Project name
+- `description` (text) - Project description
+- `status` (text) - Project status
+- `created_at` (timestamptz) - Creation timestamp
+
+**tasks** - Tasks within projects
+
+- `id` (serial) - Primary key
+- `project_id` (integer) - Foreign key to projects
+- `title` (text) - Task name
+- `description` (text) - Task description
+- `status` (text) - Task status
+- `priority` (text) - Task priority
+- `created_at` (timestamptz) - Creation timestamp
+
+**records** - Time tracking records
+
+- `id` (serial) - Primary key
+- `created_at` (timestamptz) - Creation timestamp
+- `date` (text) - Record date (YYYY-MM-DD)
+- `project_id` (integer) - Foreign key to projects
+- `time_spent` (numeric) - Time spent in hours
+- `title` (text) - Record title
+- `description` (text) - Record description
+- `category` (text) - Record category
+- `tags` (text[]) - Array of tags
+- `link` (text) - External link
+
+See [SUPABASE-CONFIG.md](./SUPABASE-CONFIG.md) for detailed setup instructions.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- pnpm (recommended)
+- Supabase account
+
+### Installation
 
 ```bash
-  git clone https://github.com/satnaing/shadcn-admin.git
+# Clone the repository
+git clone https://github.com/your-username/t-dash.git
+cd t-dash
+
+# Install dependencies
+pnpm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your Supabase credentials
+
+# Start development server
+pnpm run dev
 ```
 
-Go to the project directory
+### Environment Variables
 
-```bash
-  cd shadcn-admin
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-Install dependencies
+## Project Structure
 
-```bash
-  pnpm install
+```
+src/
+├── components/
+│   ├── data-table/         # Reusable data table components
+│   └── ui/                # Shadcn UI components
+├── context/
+│   └── supabase-context.tsx  # Supabase client provider
+├── features/
+│   ├── t-records/         # Time records feature
+│   │   ├── components/    # Records-specific components
+│   │   ├── data/          # Zod schemas
+│   │   └── index.tsx      # Records page
+│   └── t-projects/        # Projects feature
+├── hooks/
+│   └── use-supabase.tsx   # Supabase hooks
+├── lib/
+│   ├── records.ts         # Records CRUD operations
+│   ├── projects.ts        # Projects CRUD operations
+│   └── tasks.ts           # Tasks CRUD operations
+└── types/                 # TypeScript type definitions
 ```
 
-Start the server
+## Available Scripts
 
-```bash
-  pnpm run dev
-```
-
-## Sponsoring this project ❤️
-
-If you find this project helpful or use this in your own work, consider [sponsoring me](https://github.com/sponsors/satnaing) to support development and maintenance. You can [buy me a coffee](https://buymeacoffee.com/satnaing) as well. Don’t worry, every penny helps. Thank you! 🙏
-
-For questions or sponsorship inquiries, feel free to reach out at [satnaingdev@gmail.com](mailto:satnaingdev@gmail.com).
-
-### Current Sponsor
-
-- [Clerk](https://go.clerk.com/GttUAaK) - authentication and user management for the modern web
-
-## Author
-
-Crafted with 🤍 by [@satnaing](https://github.com/satnaing)
+- `pnpm dev` - Start development server
+- `pnpm build` - Build for production
+- `pnpm lint` - Run ESLint
+- `pnpm typecheck` - Run TypeScript type checking
 
 ## License
 
-Licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
+MIT License - See [LICENSE](./LICENSE) for details.

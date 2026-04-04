@@ -1,5 +1,6 @@
 import { Cross2Icon } from '@radix-ui/react-icons'
 import { type Table } from '@tanstack/react-table'
+import { RotateCcwIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { DataTableFacetedFilter } from './faceted-filter'
@@ -18,6 +19,7 @@ type DataTableToolbarProps<TData> = {
       icon?: React.ComponentType<{ className?: string }>
     }[]
   }[]
+  onRefresh?: () => void
 }
 
 export function DataTableToolbar<TData>({
@@ -25,6 +27,7 @@ export function DataTableToolbar<TData>({
   searchPlaceholder = 'Filter...',
   searchKey,
   filters = [],
+  onRefresh,
 }: DataTableToolbarProps<TData>) {
   const isFiltered =
     table.getState().columnFilters.length > 0 || table.getState().globalFilter
@@ -72,14 +75,50 @@ export function DataTableToolbar<TData>({
               table.resetColumnFilters()
               table.setGlobalFilter('')
             }}
-            className='h-8 px-2 lg:px-3'
+            className='h-8 px-2 lg:px-1'
           >
             Reset
-            <Cross2Icon className='ms-2 h-4 w-4' />
+            <Cross2Icon className='h-4 w-4' />
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <div className='flex items-center gap-2'>
+        {onRefresh && (
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={onRefresh}
+            className='h-8'
+          >
+            <RotateCcwIcon className='h-4 w-4' />
+            Refresh
+          </Button>
+        )}
+        <DataTableViewOptions table={table} />
+      </div>
     </div>
   )
+}
+
+export function getMonthOptions(year?: number) {
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ]
+  const currentYear = year ?? new Date().getFullYear()
+
+  return months.map((month, index) => ({
+    label: `${month} ${currentYear}`,
+    value: `${currentYear}-${String(index + 1).padStart(2, '0')}`,
+  }))
 }
