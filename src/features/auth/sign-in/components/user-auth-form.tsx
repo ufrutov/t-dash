@@ -5,8 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Loader2, LogIn } from 'lucide-react'
 import { toast } from 'sonner'
-import { useAuth } from '@/hooks/use-auth'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -108,7 +108,7 @@ export function UserAuthForm({
           Sign in
         </Button>
 
-        <p className='text-sm text-muted-foreground text-center mt-4'>
+        <p className='mt-4 text-center text-sm text-muted-foreground'>
           Don't have an account?{' '}
           <Link to='/sign-up' className='text-primary hover:underline'>
             Sign up

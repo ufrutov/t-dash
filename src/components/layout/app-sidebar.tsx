@@ -7,9 +7,9 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar'
 import { sidebarData } from './data/sidebar-data'
+import { DomainSwitcher } from './domain-switcher'
 import { NavGroup } from './nav-group'
 import { NavUser } from './nav-user'
-import { DomainSwitcher } from './domain-switcher'
 
 export function AppSidebar() {
   const { collapsible, variant } = useLayout()

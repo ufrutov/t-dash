@@ -1,12 +1,10 @@
-import { createClient } from '@/lib/supabase/client'
 import type { Task } from '@/types/task'
+import { createClient } from '@/lib/supabase/client'
 
 export async function fetchTasks(projectId?: number): Promise<Task[]> {
   const supabase = createClient()
-  
-  let query = supabase
-    .from('tasks')
-    .select('*')
+
+  let query = supabase.from('tasks').select('*')
 
   if (projectId) {
     query = query.eq('project_id', projectId)
@@ -21,7 +19,9 @@ export async function fetchTasks(projectId?: number): Promise<Task[]> {
   return data || []
 }
 
-export async function createTask(task: Omit<Task, 'id' | 'created_at'>): Promise<Task> {
+export async function createTask(
+  task: Omit<Task, 'id' | 'created_at'>
+): Promise<Task> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('tasks')
@@ -36,7 +36,10 @@ export async function createTask(task: Omit<Task, 'id' | 'created_at'>): Promise
   return data
 }
 
-export async function updateTask(id: number, updates: Partial<Omit<Task, 'id' | 'created_at'>>): Promise<Task> {
+export async function updateTask(
+  id: number,
+  updates: Partial<Omit<Task, 'id' | 'created_at'>>
+): Promise<Task> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('tasks')
@@ -54,10 +57,7 @@ export async function updateTask(id: number, updates: Partial<Omit<Task, 'id' | 
 
 export async function deleteTask(id: number): Promise<void> {
   const supabase = createClient()
-  const { error } = await supabase
-    .from('tasks')
-    .delete()
-    .eq('id', id)
+  const { error } = await supabase.from('tasks').delete().eq('id', id)
 
   if (error) {
     throw error

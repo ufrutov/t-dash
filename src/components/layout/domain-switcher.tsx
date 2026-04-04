@@ -19,7 +19,9 @@ import {
 export function DomainSwitcher() {
   const { isMobile } = useSidebar()
   const { domains, setActiveDomainId } = useSupabase()
-  const [activeDomain, setLocalActiveDomain] = React.useState<typeof domains[0] | null>(null)
+  const [activeDomain, setLocalActiveDomain] = React.useState<
+    (typeof domains)[0] | null
+  >(null)
 
   React.useEffect(() => {
     if (domains.length > 0 && !activeDomain) {
@@ -28,7 +30,7 @@ export function DomainSwitcher() {
     }
   }, [domains, activeDomain, setActiveDomainId])
 
-  const handleDomainSelect = (domain: typeof domains[0]) => {
+  const handleDomainSelect = (domain: (typeof domains)[0]) => {
     setLocalActiveDomain(domain)
     setActiveDomainId(domain.id)
   }

@@ -1,12 +1,10 @@
-import { createClient } from '@/lib/supabase/client'
 import type { Record } from '@/types/record'
+import { createClient } from '@/lib/supabase/client'
 
 export async function fetchRecords(projectId?: number): Promise<Record[]> {
   const supabase = createClient()
-  
-  let query = supabase
-    .from('records')
-    .select('*')
+
+  let query = supabase.from('records').select('*')
 
   if (projectId) {
     query = query.eq('project_id', projectId)
@@ -21,7 +19,9 @@ export async function fetchRecords(projectId?: number): Promise<Record[]> {
   return data || []
 }
 
-export async function createRecord(record: Omit<Record, 'id' | 'created_at'>): Promise<Record> {
+export async function createRecord(
+  record: Omit<Record, 'id' | 'created_at'>
+): Promise<Record> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('records')
@@ -36,7 +36,10 @@ export async function createRecord(record: Omit<Record, 'id' | 'created_at'>): P
   return data
 }
 
-export async function updateRecord(id: number, updates: Partial<Omit<Record, 'id' | 'created_at'>>): Promise<Record> {
+export async function updateRecord(
+  id: number,
+  updates: Partial<Omit<Record, 'id' | 'created_at'>>
+): Promise<Record> {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('records')
@@ -54,10 +57,7 @@ export async function updateRecord(id: number, updates: Partial<Omit<Record, 'id
 
 export async function deleteRecord(id: number): Promise<void> {
   const supabase = createClient()
-  const { error } = await supabase
-    .from('records')
-    .delete()
-    .eq('id', id)
+  const { error } = await supabase.from('records').delete().eq('id', id)
 
   if (error) {
     throw error

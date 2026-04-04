@@ -7,7 +7,11 @@ interface SignOutDialogProps {
   onConfirm: () => Promise<void>
 }
 
-export function SignOutDialog({ open, onOpenChange, onConfirm }: SignOutDialogProps) {
+export function SignOutDialog({
+  open,
+  onOpenChange,
+  onConfirm,
+}: SignOutDialogProps) {
   const navigate = useNavigate()
   const location = useLocation()
 
