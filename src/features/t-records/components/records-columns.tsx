@@ -8,7 +8,7 @@ import type { RecordType } from '../data/schema'
 export function getRecordsColumns(
   projects: Project[]
 ): ColumnDef<RecordType>[] {
-  const projectMap = new Map(projects.map((p) => [p.id, p.title]))
+  const projectMap = new Map(projects.map((p) => [p.id, p]))
   return [
     {
       accessorKey: 'date',
@@ -19,6 +19,31 @@ export function getRecordsColumns(
       filterFn: (row, columnId, filterValues: string[]) => {
         const dateValue = String(row.getValue(columnId))
         return filterValues.some((filter) => dateValue.startsWith(filter))
+      },
+      meta: { className: 'max-w-[80px]' },
+    },
+    {
+      accessorKey: 'project_id',
+      accessorFn: (row) => String(row.project_id),
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title='Project' />
+      ),
+      cell: ({ row }) => {
+        const project = projectMap.get(row.original.project_id)
+        return (
+          <span
+            className='inline-flex items-center rounded-sm px-2 py-0.5 text-xs font-semibold'
+            style={{
+              color: 'inherit',
+              backgroundColor: project?.color
+                ? `${project.color}20`
+                : 'transparent',
+              border: `1px solid ${project?.color || 'transparent'}`,
+            }}
+          >
+            {project?.title ?? row.getValue('project_id')}
+          </span>
+        )
       },
       meta: { className: 'max-w-[80px]' },
     },
@@ -41,16 +66,6 @@ export function getRecordsColumns(
       cell: ({ row }) => (
         <span className='truncate'>{row.getValue('description')}</span>
       ),
-    },
-    {
-      accessorKey: 'project_id',
-      accessorFn: (row) => String(row.project_id),
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='Project' />
-      ),
-      cell: ({ row }) =>
-        projectMap.get(row.original.project_id) ?? row.getValue('project_id'),
-      meta: { className: 'max-w-[80px]' },
     },
     {
       accessorKey: 'category',

@@ -3,6 +3,7 @@ import {
   createContext,
   useCallback,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -45,6 +46,7 @@ export const SupabaseContext = createContext<SupabaseContextType | undefined>(
 
 export function SupabaseProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
+  const hasInitializedRecords = useRef(false)
 
   // Domains state
   const [domains, setDomains] = useState<Domain[]>([])
@@ -61,8 +63,15 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
   const [tasksLoading, setTasksLoading] = useState(false)
   const [tasksError, setTasksError] = useState<Error | null>(null)
 
-  // Records state
-  const [records, setRecords] = useState<Record[]>([])
+  // Records state - with localStorage persistence
+  const [records, setRecords] = useState<Record[]>(() => {
+    try {
+      const cached = localStorage.getItem('app_records')
+      return cached ? JSON.parse(cached) : []
+    } catch {
+      return []
+    }
+  })
   const [recordsLoading, setRecordsLoading] = useState(false)
   const [recordsError, setRecordsError] = useState<Error | null>(null)
 
@@ -167,14 +176,28 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
     }
   }, [user, refetchTasks])
 
+  // Persist records to localStorage
   useEffect(() => {
-    if (user) {
+    localStorage.setItem('app_records', JSON.stringify(records))
+  }, [records])
+
+  // Fetch records only on initial mount when user is authenticated
+  // Respect empty array from localStorage after that
+  useEffect(() => {
+    if (user && !hasInitializedRecords.current) {
+      hasInitializedRecords.current = true
       refetchRecords()
-    } else {
-      setRecords([])
-      setRecordsLoading(false)
     }
   }, [user, refetchRecords])
+
+  // Clear records only when user logs out
+  useEffect(() => {
+    if (!user) {
+      setRecords([])
+      setRecordsLoading(false)
+      hasInitializedRecords.current = false
+    }
+  }, [user])
 
   return (
     <SupabaseContext.Provider

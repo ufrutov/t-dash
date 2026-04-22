@@ -17,9 +17,12 @@ import {
 import { TaskActionDialog } from './task-action-dialog'
 
 export function TasksList() {
-  const { tasks, tasksLoading } = useSupabase()
+  const { tasks, tasksLoading, projects } = useSupabase()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+
+  // Create a map of project ID to project for quick lookup
+  const projectMap = new Map(projects.map((p) => [p.id, p]))
 
   const handleNewTask = () => {
     setSelectedTask(null)
@@ -83,7 +86,15 @@ export function TasksList() {
                   <TableCell className='text-muted-foreground'>
                     {format(new Date(task.created_at), 'dd/MM/yyyy')}
                   </TableCell>
-                  <TableCell className='font-medium'>{task.title}</TableCell>
+                  <TableCell
+                    className='font-medium'
+                    style={{
+                      color:
+                        projectMap.get(task.project_id)?.color || 'inherit',
+                    }}
+                  >
+                    {task.title}
+                  </TableCell>
                   <TableCell>{task.description || '-'}</TableCell>
                   <TableCell>{task.category}</TableCell>
                   <TableCell>

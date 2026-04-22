@@ -32,9 +32,10 @@ import { getRecordsColumns } from './records-columns'
 
 type DataTableProps = {
   data: RecordType[]
+  defaultPageSize?: number
 }
 
-export function TasksTable({ data }: DataTableProps) {
+export function TasksTable({ data, defaultPageSize = 50 }: DataTableProps) {
   const { projects, refetchRecords } = useSupabase()
   const [selectedRecord, setSelectedRecord] = useState<RecordType | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -45,7 +46,10 @@ export function TasksTable({ data }: DataTableProps) {
     tags: false,
   })
   const [globalFilter, setGlobalFilter] = useState('')
-  const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: defaultPageSize,
+  })
 
   const columns = getRecordsColumns(projects)
 

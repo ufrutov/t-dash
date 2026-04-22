@@ -7,4 +7,5 @@ export interface Project {
   link: string
   domain_id: number
   user_id: string
+  color?: string
 }

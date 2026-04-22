@@ -9,14 +9,7 @@ import { toast } from 'sonner'
 import { createRecord, updateRecord, deleteRecord } from '@/lib/records'
 import { useSupabase } from '@/hooks/use-supabase'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DraggableDialog, DialogFooter } from '@/components/ui/draggable-dialog'
 import {
   Form,
   FormControl,
@@ -128,7 +121,7 @@ export function RecordActionDialog({
   }
 
   return (
-    <Dialog
+    <DraggableDialog
       open={open}
       onOpenChange={(state) => {
         if (!state) {
@@ -136,197 +129,194 @@ export function RecordActionDialog({
         }
         onOpenChange(state)
       }}
+      title={isEdit ? 'Edit Record' : 'Add New Record'}
+      description={
+        isEdit
+          ? "Update the record here. Click save when you're done."
+          : "Create a new record here. Click save when you're done."
+      }
     >
-      <DialogContent className='sm:max-w-lg'>
-        <DialogHeader className='text-start'>
-          <DialogTitle>{isEdit ? 'Edit Record' : 'Add New Record'}</DialogTitle>
-          <DialogDescription>
-            {isEdit
-              ? "Update the record here. Click save when you're done."
-              : "Create a new record here. Click save when you're done."}
-          </DialogDescription>
-        </DialogHeader>
-        <div className='py-1'>
-          <Form {...form}>
-            <form
-              id='record-form'
-              onSubmit={form.handleSubmit(onSubmit)}
-              className='space-y-4'
-            >
-              <div className='flex gap-2'>
-                <FormField
-                  control={form.control}
-                  name='project_id'
-                  render={({ field }) => (
-                    <FormItem className='flex-1'>
-                      <FormLabel>Project</FormLabel>
-                      <SelectDropdown
-                        defaultValue={String(field.value)}
-                        onValueChange={(value) => field.onChange(Number(value))}
-                        placeholder='Select a project'
-                        className='w-full'
-                        items={projects.map((p) => ({
-                          label: p.title,
-                          value: String(p.id),
-                        }))}
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='date'
-                  render={({ field }) => (
-                    <FormItem className='flex-1'>
-                      <FormLabel>Date</FormLabel>
-                      <FormControl>
-                        <DatePicker
-                          selected={
-                            field.value ? parseISO(field.value) : undefined
-                          }
-                          onSelect={(date) => {
-                            if (!date) return field.onChange('')
-                            field.onChange(format(date, 'yyyy-MM-dd'))
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+      <div className='py-1'>
+        <Form {...form}>
+          <form
+            id='record-form'
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='space-y-4'
+          >
+            <div className='flex gap-2'>
               <FormField
                 control={form.control}
-                name='title'
+                name='project_id'
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder='Record title' {...field} />
-                    </FormControl>
+                  <FormItem className='flex-1'>
+                    <FormLabel>Project</FormLabel>
+                    <SelectDropdown
+                      defaultValue={String(field.value)}
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      placeholder='Select a project'
+                      className='w-full'
+                      items={projects.map((p) => ({
+                        label: p.title,
+                        value: String(p.id),
+                      }))}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name='description'
+                name='date'
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
+                  <FormItem className='flex-1'>
+                    <FormLabel>Date</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder='Record description'
-                        {...field}
-                        value={field.value || ''}
+                      <DatePicker
+                        selected={
+                          field.value ? parseISO(field.value) : undefined
+                        }
+                        onSelect={(date) => {
+                          if (!date) return field.onChange('')
+                          field.onChange(format(date, 'yyyy-MM-dd'))
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <div className='flex gap-2'>
-                <FormField
-                  control={form.control}
-                  name='time_spent'
-                  render={({ field }) => (
-                    <FormItem className='flex-1'>
-                      <FormLabel>Time Spent (hours)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type='number'
-                          min={0}
-                          value={field.value}
-                          defaultValue={2}
-                          onChange={(e) =>
-                            field.onChange(Number(e.target.value))
-                          }
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='category'
-                  render={({ field }) => (
-                    <FormItem className='flex-1'>
-                      <FormLabel>Category</FormLabel>
-                      <SelectDropdown
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                        placeholder='Select a category'
-                        className='w-full'
-                        items={[
-                          { label: 'General', value: 'general' },
-                          { label: 'Development', value: 'development' },
-                          { label: 'Design', value: 'design' },
-                          { label: 'Testing', value: 'testing' },
-                          { label: 'Documentation', value: 'documentation' },
-                        ]}
-                      />
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+            </div>
+            <FormField
+              control={form.control}
+              name='title'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder='Record title' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='description'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder='Record description'
+                      {...field}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className='flex gap-2'>
               <FormField
                 control={form.control}
-                name='tags'
+                name='time_spent'
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tags (comma separated)</FormLabel>
+                  <FormItem className='flex-1'>
+                    <FormLabel>Time Spent (hours)</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder='tag1, tag2, ...'
-                        value={field.value?.join(', ') || ''}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value
-                              .split(',')
-                              .map((tag) => tag.trim())
-                              .filter(Boolean)
-                          )
-                        }
+                        type='number'
+                        min={0}
+                        value={field.value}
+                        defaultValue={2}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
-                name='link'
+                name='category'
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Link</FormLabel>
-                    <FormControl>
-                      <Input placeholder='https://...' {...field} />
-                    </FormControl>
+                  <FormItem className='flex-1'>
+                    <FormLabel>Category</FormLabel>
+                    <SelectDropdown
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      placeholder='Select a category'
+                      className='w-full'
+                      items={[
+                        { label: 'General', value: 'general' },
+                        { label: 'Development', value: 'development' },
+                        { label: 'Design', value: 'design' },
+                        { label: 'Testing', value: 'testing' },
+                        {
+                          label: 'Documentation',
+                          value: 'documentation',
+                        },
+                      ]}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              {/* Status field removed: not present in schema. */}
-            </form>
-          </Form>
+            </div>
+            <FormField
+              control={form.control}
+              name='tags'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags (comma separated)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder='tag1, tag2, ...'
+                      value={field.value?.join(', ') || ''}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value
+                            .split(',')
+                            .map((tag) => tag.trim())
+                            .filter(Boolean)
+                        )
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='link'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link</FormLabel>
+                  <FormControl>
+                    <Input placeholder='https://...' {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Status field removed: not present in schema. */}
+          </form>
+        </Form>
+      </div>
+      <DialogFooter className='flex justify-between'>
+        {isEdit && (
+          <Button type='button' variant='destructive' onClick={handleDelete}>
+            Delete
+          </Button>
+        )}
+        <div className='ml-auto flex gap-2'>
+          <Button type='submit' form='record-form'>
+            {isEdit ? 'Update' : 'Save'}
+          </Button>
         </div>
-        <DialogFooter className='flex justify-between'>
-          {isEdit && (
-            <Button type='button' variant='destructive' onClick={handleDelete}>
-              Delete
-            </Button>
-          )}
-          <div className='ml-auto flex gap-2'>
-            <Button type='submit' form='record-form'>
-              {isEdit ? 'Update' : 'Save'}
-            </Button>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </DialogFooter>
+    </DraggableDialog>
   )
 }
