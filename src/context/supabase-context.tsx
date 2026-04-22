@@ -152,27 +152,18 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (user) {
       refetchDomains()
-    } else {
-      setDomains([])
-      setDomainsLoading(false)
     }
   }, [user, refetchDomains])
 
   useEffect(() => {
     if (user) {
       refetchProjects()
-    } else {
-      setProjects([])
-      setProjectsLoading(false)
     }
   }, [user, refetchProjects])
 
   useEffect(() => {
     if (user) {
       refetchTasks()
-    } else {
-      setTasks([])
-      setTasksLoading(false)
     }
   }, [user, refetchTasks])
 
@@ -190,11 +181,9 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
     }
   }, [user, refetchRecords])
 
-  // Clear records only when user logs out
+  // Reset initialized flag when user logs out
   useEffect(() => {
     if (!user) {
-      setRecords([])
-      setRecordsLoading(false)
       hasInitializedRecords.current = false
     }
   }, [user])
