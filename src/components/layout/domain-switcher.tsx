@@ -18,20 +18,15 @@ import {
 
 export function DomainSwitcher() {
   const { isMobile } = useSidebar()
-  const { domains, setActiveDomainId } = useSupabase()
-  const [activeDomain, setLocalActiveDomain] = React.useState<
-    (typeof domains)[0] | null
-  >(null)
+  const { domains, activeDomainId, setActiveDomainId } = useSupabase()
 
-  React.useEffect(() => {
-    if (domains.length > 0 && !activeDomain) {
-      setLocalActiveDomain(domains[0])
-      setActiveDomainId(domains[0].id)
-    }
-  }, [domains, activeDomain, setActiveDomainId])
+  // Derive active domain from activeDomainId without storing in state
+  const activeDomain = React.useMemo(
+    () => domains.find((d) => d.id === activeDomainId) || null,
+    [activeDomainId, domains]
+  )
 
   const handleDomainSelect = (domain: (typeof domains)[0]) => {
-    setLocalActiveDomain(domain)
     setActiveDomainId(domain.id)
   }
 

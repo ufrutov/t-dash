@@ -46,6 +46,9 @@ export const SupabaseContext = createContext<SupabaseContextType | undefined>(
 
 export function SupabaseProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
+  const hasInitializedDomains = useRef(false)
+  const hasInitializedProjects = useRef(false)
+  const hasInitializedTasks = useRef(false)
   const hasInitializedRecords = useRef(false)
 
   // Domains state
@@ -150,19 +153,22 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
   }, [user])
 
   useEffect(() => {
-    if (user) {
+    if (user && !hasInitializedDomains.current) {
+      hasInitializedDomains.current = true
       refetchDomains()
     }
   }, [user, refetchDomains])
 
   useEffect(() => {
-    if (user) {
+    if (user && !hasInitializedProjects.current) {
+      hasInitializedProjects.current = true
       refetchProjects()
     }
   }, [user, refetchProjects])
 
   useEffect(() => {
-    if (user) {
+    if (user && !hasInitializedTasks.current) {
+      hasInitializedTasks.current = true
       refetchTasks()
     }
   }, [user, refetchTasks])
@@ -181,9 +187,12 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
     }
   }, [user, refetchRecords])
 
-  // Reset initialized flag when user logs out
+  // Reset initialized flags when user logs out
   useEffect(() => {
     if (!user) {
+      hasInitializedDomains.current = false
+      hasInitializedProjects.current = false
+      hasInitializedTasks.current = false
       hasInitializedRecords.current = false
     }
   }, [user])
