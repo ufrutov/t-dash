@@ -129,11 +129,10 @@ export function InvoiceDialog({
                 <td colspan="6">Week: ${group.weekLabel}</td>
               </tr>
               ${group.records
-                .map(
-                  (record) => {
-                    const rate = getRate(record.project_id)
-                    const earnings = rate * record.time_spent
-                    return `
+                .map((record) => {
+                  const rate = getRate(record.project_id)
+                  const earnings = rate * record.time_spent
+                  return `
                 <tr>
                   <td>${format(parseISO(record.date), 'MMM d')}</td>
                   <td>${getProjectTitle(record.project_id)}</td>
@@ -143,8 +142,7 @@ export function InvoiceDialog({
                   <td>$${earnings.toFixed(2)}</td>
                 </tr>
               `
-                  }
-                )
+                })
                 .join('')}
             `
               )
