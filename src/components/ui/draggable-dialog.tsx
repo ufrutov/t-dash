@@ -15,6 +15,7 @@ type DraggableDialogProps = {
   children: ReactNode
   title?: ReactNode
   description?: ReactNode
+  className?: string
 }
 
 export function DraggableDialog({
@@ -23,6 +24,7 @@ export function DraggableDialog({
   children,
   title,
   description,
+  className,
 }: DraggableDialogProps) {
   const [dialogPosition, setDialogPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
@@ -73,7 +75,7 @@ export function DraggableDialog({
       }}
     >
       <DialogContent
-        className='sm:max-w-lg'
+        className={className ? `${className}` : 'sm:max-w-lg'}
         style={{
           transform: `translate(${dialogPosition.x}px, ${dialogPosition.y}px)`,
           transition: isDragging ? 'none' : 'transform 0.2s ease-out',
