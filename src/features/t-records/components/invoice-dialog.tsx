@@ -94,6 +94,8 @@ export function InvoiceDialog({
     })
     .filter((group) => group.records.length > 0)
 
+  const monthTotal = weekGroups.reduce((sum, g) => sum + g.totalHours, 0)
+
   const monthTotalEarnings = weekGroups.reduce((sum, g) => {
     return (
       sum +
@@ -169,6 +171,24 @@ export function InvoiceDialog({
           <p style="margin: 0;">cvdf34@gmail.com</p>
         </div>
       </div>
+      <table style="margin-left: auto; border: none; margin-bottom: 20px; text-align: right;">
+        <tr>
+          <td style="padding: 2px 4px; font-weight: 600; border: none;">Date:</td>
+          <td style="padding: 2px 4px; border: none;">${format(new Date(), 'MMM d, yyyy')}</td>
+        </tr>
+        <tr>
+          <td style="padding: 2px 4px; font-weight: 600; border: none;">Period:</td>
+          <td style="padding: 2px 4px; border: none;">${format(monthStart, 'MMM d, yyyy')} - ${format(monthEnd, 'MMM d, yyyy')}</td>
+        </tr>
+        <tr>
+          <td style="padding: 2px 4px; font-weight: 600; border: none;">Time spent:</td>
+          <td style="padding: 2px 4px; border: none;">${monthTotal}h</td>
+        </tr>
+        <tr>
+          <td style="padding: 2px 4px; font-weight: 600; border: none;">Total due:</td>
+          <td style="padding: 2px 4px; font-weight: 700; border: none;">$${monthTotalEarnings.toFixed(2)}</td>
+        </tr>
+      </table>
       ${tableHtml}
     `
 
