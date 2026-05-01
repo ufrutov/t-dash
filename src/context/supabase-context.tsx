@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { format, startOfMonth, endOfMonth } from 'date-fns'
 import type { Domain } from '@/types/domain'
 import type { Project } from '@/types/project'
 import type { Record } from '@/types/record'
@@ -37,7 +38,7 @@ interface SupabaseContextType {
   records: Record[]
   recordsLoading: boolean
   recordsError: Error | null
-  refetchRecords: () => Promise<void>
+  refetchRecords: (month?: Date) => Promise<void>
 }
 
 export const SupabaseContext = createContext<SupabaseContextType | undefined>(
@@ -136,21 +137,31 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
     }
   }, [user, activeProjectId])
 
-  const refetchRecords = useCallback(async () => {
-    if (!user) return
-    setRecordsLoading(true)
-    setRecordsError(null)
-    try {
-      const data = await fetchRecords()
-      setRecords(data)
-    } catch (err) {
-      setRecordsError(
-        err instanceof Error ? err : new Error('Failed to fetch records')
-      )
-    } finally {
-      setRecordsLoading(false)
-    }
-  }, [user])
+  const refetchRecords = useCallback(
+    async (month?: Date) => {
+      if (!user) return
+      setRecordsLoading(true)
+      setRecordsError(null)
+      try {
+        let startDate, endDate
+        if (month) {
+          const start = startOfMonth(month)
+          const end = endOfMonth(month)
+          startDate = format(start, 'yyyy-MM-dd')
+          endDate = format(end, 'yyyy-MM-dd')
+        }
+        const data = await fetchRecords(undefined, startDate, endDate)
+        setRecords(data)
+      } catch (err) {
+        setRecordsError(
+          err instanceof Error ? err : new Error('Failed to fetch records')
+        )
+      } finally {
+        setRecordsLoading(false)
+      }
+    },
+    [user]
+  )
 
   useEffect(() => {
     if (user && !hasInitializedDomains.current) {
@@ -183,7 +194,7 @@ export function SupabaseProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (user && !hasInitializedRecords.current) {
       hasInitializedRecords.current = true
-      refetchRecords()
+      refetchRecords(new Date())
     }
   }, [user, refetchRecords])
 

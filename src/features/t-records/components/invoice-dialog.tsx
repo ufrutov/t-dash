@@ -22,6 +22,7 @@ type InvoiceDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   records: RecordType[]
+  currentMonth: Date
 }
 
 type WeekGroup = {
@@ -36,9 +37,9 @@ export function InvoiceDialog({
   open,
   onOpenChange,
   records,
+  currentMonth,
 }: InvoiceDialogProps) {
   const { projects } = useSupabase()
-  const currentMonth = new Date()
   const monthStart = startOfMonth(currentMonth)
   const monthEnd = endOfMonth(currentMonth)
 
@@ -171,24 +172,26 @@ export function InvoiceDialog({
           <p style="margin: 0;">cvdf34@gmail.com</p>
         </div>
       </div>
-      <table style="margin-left: auto; border: none; margin-bottom: 20px; text-align: right;">
-        <tr>
-          <td style="padding: 2px 4px; font-weight: 600; border: none;">Date:</td>
-          <td style="padding: 2px 4px; border: none;">${format(new Date(), 'MMM d, yyyy')}</td>
-        </tr>
-        <tr>
-          <td style="padding: 2px 4px; font-weight: 600; border: none;">Period:</td>
-          <td style="padding: 2px 4px; border: none;">${format(monthStart, 'MMM d, yyyy')} - ${format(monthEnd, 'MMM d, yyyy')}</td>
-        </tr>
-        <tr>
-          <td style="padding: 2px 4px; font-weight: 600; border: none;">Time spent:</td>
-          <td style="padding: 2px 4px; border: none;">${monthTotal}h</td>
-        </tr>
-        <tr>
-          <td style="padding: 2px 4px; font-weight: 600; border: none;">Total due:</td>
-          <td style="padding: 2px 4px; font-weight: 700; border: none;">$${monthTotalEarnings.toFixed(2)}</td>
-        </tr>
-      </table>
+      <div style="display: flex; justify-content: flex-end;">
+        <table class="summary" style="width: 50%; margin-left: auto; border: none; margin-bottom: 20px;">
+          <tr>
+            <td style="font-weight: 600;">Date:</td>
+            <td>${format(new Date(), 'MMM d, yyyy')}</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">Period:</td>
+            <td>${format(monthStart, 'MMM d, yyyy')} - ${format(monthEnd, 'MMM d, yyyy')}</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">Time spent:</td>
+            <td>${monthTotal}h</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">Total due:</td>
+            <td style="font-weight: 700;">$${monthTotalEarnings.toFixed(2)}</td>
+          </tr>
+        </table>
+      </div>
       ${tableHtml}
     `
 
@@ -222,6 +225,7 @@ export function InvoiceDialog({
             .week-header td { background-color: #f1f5f9; font-weight: 600; }
             .total-row td { font-weight: 700; border-top: 2px solid #0f172a; }
             .total-row td:last-child { text-align: right; }
+            .summary td { padding: 2px 4px; border: none; text-align: right; }
           </style>
         </head>
         <body>

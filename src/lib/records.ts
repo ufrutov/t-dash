@@ -1,13 +1,21 @@
 import type { Record } from '@/types/record'
 import { createClient } from '@/lib/supabase/client'
 
-export async function fetchRecords(projectId?: number): Promise<Record[]> {
+export async function fetchRecords(
+  projectId?: number,
+  startDate?: string,
+  endDate?: string
+): Promise<Record[]> {
   const supabase = createClient()
 
   let query = supabase.from('records').select('*')
 
   if (projectId) {
     query = query.eq('project_id', projectId)
+  }
+
+  if (startDate && endDate) {
+    query = query.gte('date', startDate).lte('date', endDate)
   }
 
   const { data, error } = await query.order('date', { ascending: false })

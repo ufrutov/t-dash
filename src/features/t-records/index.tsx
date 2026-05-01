@@ -17,11 +17,18 @@ import { TasksTable } from './components/records-table'
 import { recordSchema, type RecordType } from './data/schema'
 
 export function Records() {
-  const { records, recordsLoading, domains, activeDomainId } = useSupabase()
+  const { records, recordsLoading, domains, activeDomainId, refetchRecords } =
+    useSupabase()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [invoiceOpen, setInvoiceOpen] = useState(false)
+  const [currentMonth, setCurrentMonth] = useState(new Date())
   const originalTitle = useRef<string>(document.title)
   const data = recordSchema.array().parse(records)
+
+  const handleMonthChange = (date: Date) => {
+    setCurrentMonth(date)
+    refetchRecords?.(date)
+  }
 
   const domainName =
     domains.find((d) => d.id === activeDomainId)?.title || 'YMI Digital'
@@ -70,23 +77,32 @@ export function Records() {
         </div>
 
         <div className='flex flex-col gap-4 sm:flex-row'>
-          <RecordsCalendar data={data as RecordType[]} />
+          <RecordsCalendar
+            data={data as RecordType[]}
+            currentMonth={currentMonth}
+            onMonthChange={handleMonthChange}
+          />
 
           {recordsLoading ? (
             <RecordsSkeleton />
           ) : (
             <div className='min-w-0 flex-1'>
-              <TasksTable data={data as RecordType[]} />
+              <TasksTable data={data as RecordType[]} month={currentMonth} />
             </div>
           )}
         </div>
       </Main>
 
-      <RecordActionDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      <RecordActionDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSuccess={() => refetchRecords(currentMonth)}
+      />
       <InvoiceDialog
         open={invoiceOpen}
         onOpenChange={setInvoiceOpen}
         records={data as RecordType[]}
+        currentMonth={currentMonth}
       />
     </>
   )

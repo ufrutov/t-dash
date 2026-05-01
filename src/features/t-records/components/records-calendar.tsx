@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { parseISO, format, isSameMonth } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar2'
@@ -6,11 +6,11 @@ import type { RecordType } from '../data/schema'
 
 type RecordsCalendarProps = {
   data: RecordType[]
+  currentMonth: Date
+  onMonthChange: (date: Date) => void
 }
 
-export function RecordsCalendar({ data }: RecordsCalendarProps) {
-  const [currentMonth, setCurrentMonth] = useState(new Date())
-
+export function RecordsCalendar({ data, currentMonth, onMonthChange }: RecordsCalendarProps) {
   const timeByDate = useMemo(() => {
     const map = new Map<string, number>()
     for (const r of data) {
@@ -33,7 +33,7 @@ export function RecordsCalendar({ data }: RecordsCalendarProps) {
 
   const recordDates = data.map((r) => parseISO(r.date))
 
-  return (
+    return (
     <Calendar
       mode='single'
       className='mx-auto p-0'
@@ -42,7 +42,7 @@ export function RecordsCalendar({ data }: RecordsCalendarProps) {
       }}
       modifiers={{ hasRecord: recordDates }}
       defaultMonth={currentMonth}
-      onMonthChange={setCurrentMonth}
+      onMonthChange={onMonthChange}
       weekStartsOn={1}
       formatters={{
         formatMonthDropdown: (date) => {

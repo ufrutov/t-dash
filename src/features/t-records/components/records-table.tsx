@@ -33,9 +33,14 @@ import { getRecordsColumns } from './records-columns'
 type DataTableProps = {
   data: RecordType[]
   defaultPageSize?: number
+  month?: Date
 }
 
-export function TasksTable({ data, defaultPageSize = 50 }: DataTableProps) {
+export function TasksTable({
+  data,
+  defaultPageSize = 50,
+  month,
+}: DataTableProps) {
   const { projects, refetchRecords } = useSupabase()
   const [selectedRecord, setSelectedRecord] = useState<RecordType | null>(null)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -50,6 +55,10 @@ export function TasksTable({ data, defaultPageSize = 50 }: DataTableProps) {
     pageIndex: 0,
     pageSize: defaultPageSize,
   })
+
+  const handleRefetch = () => {
+    refetchRecords?.(month)
+  }
 
   const columns = getRecordsColumns(projects)
 
@@ -109,7 +118,7 @@ export function TasksTable({ data, defaultPageSize = 50 }: DataTableProps) {
             options: getMonthOptions(),
           },
         ]}
-        onRefresh={refetchRecords}
+        onRefresh={handleRefetch}
       />
       <div className='overflow-hidden rounded-md border'>
         <Table className='min-w-xl'>
@@ -185,7 +194,7 @@ export function TasksTable({ data, defaultPageSize = 50 }: DataTableProps) {
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
         record={selectedRecord}
-        onSuccess={refetchRecords}
+        onSuccess={handleRefetch}
       />
     </div>
   )
