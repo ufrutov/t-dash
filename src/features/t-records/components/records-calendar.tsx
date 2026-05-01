@@ -10,7 +10,11 @@ type RecordsCalendarProps = {
   onMonthChange: (date: Date) => void
 }
 
-export function RecordsCalendar({ data, currentMonth, onMonthChange }: RecordsCalendarProps) {
+export function RecordsCalendar({
+  data,
+  currentMonth,
+  onMonthChange,
+}: RecordsCalendarProps) {
   const timeByDate = useMemo(() => {
     const map = new Map<string, number>()
     for (const r of data) {
@@ -33,7 +37,7 @@ export function RecordsCalendar({ data, currentMonth, onMonthChange }: RecordsCa
 
   const recordDates = data.map((r) => parseISO(r.date))
 
-    return (
+  return (
     <Calendar
       mode='single'
       className='mx-auto p-0'
