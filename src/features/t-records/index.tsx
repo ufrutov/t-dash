@@ -36,14 +36,14 @@ export function Records() {
   useEffect(() => {
     if (invoiceOpen) {
       originalTitle.current = document.title
-      document.title = `Invoice - ${format(new Date(), 'MMMM yyyy')} - ${domainName} - Serghei Ufrutov`
+      document.title = `Invoice - ${format(currentMonth, 'MMMM yyyy')} - ${domainName} - Serghei Ufrutov`
     } else {
       document.title = originalTitle.current
     }
     return () => {
       document.title = originalTitle.current
     }
-  }, [invoiceOpen, domainName])
+  }, [currentMonth, invoiceOpen, domainName])
 
   return (
     <>
