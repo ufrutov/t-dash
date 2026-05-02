@@ -249,9 +249,10 @@ export function RecordActionDialog({
                       className='w-full'
                       items={[
                         { label: 'General', value: 'general' },
-                        { label: 'Development', value: 'development' },
+                        { label: 'Development', value: 'dev' },
                         { label: 'Design', value: 'design' },
-                        { label: 'Testing', value: 'testing' },
+                        { label: 'QA', value: 'qa' },
+                        { label: 'Review', value: 'review' },
                         {
                           label: 'Documentation',
                           value: 'documentation',
