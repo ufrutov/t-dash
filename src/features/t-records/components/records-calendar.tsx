@@ -56,11 +56,23 @@ export function RecordsCalendar({
       components={{
         CaptionLabel: ({ children, ...props }) => {
           return (
-            <div className='flex items-center gap-2' {...props}>
+            <div
+              {...props}
+              className='relative flex w-full items-baseline justify-center'
+            >
               <span className='text-lg font-bold'>{children}</span>
               <span className='ml-1 text-xs text-muted-foreground'>
                 {monthTotal}h
               </span>
+
+              <div className='absolute top-full -mx-6 w-full'>
+                <div className='h-1.5 w-full overflow-hidden rounded-full bg-muted'>
+                  <div
+                    className='h-1.5 max-w-full rounded-full bg-primary transition-[width] duration-300 ease-out'
+                    style={{ width: `${(monthTotal / 100) * 100}%` }}
+                  />
+                </div>
+              </div>
             </div>
           )
         },

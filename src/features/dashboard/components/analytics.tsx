@@ -173,7 +173,7 @@ function SimpleBarList({
               </div>
               <div className='h-2.5 w-full rounded-full bg-muted'>
                 <div
-                  className={`h-2.5 rounded-full ${barClass}`}
+                  className={`h-2.5 rounded-full transition-[width] duration-300 ease-out ${barClass}`}
                   style={{ width }}
                 />
               </div>
