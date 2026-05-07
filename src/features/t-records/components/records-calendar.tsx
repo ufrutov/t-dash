@@ -45,7 +45,7 @@ export function RecordsCalendar({
 
   useEffect(() => {
     const daysInMonth = getDaysInMonth(currentMonth)
-    const currentDay = getDate(currentMonth)
+    const currentDay = getDate(new Date())
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setPotentialProgress((currentDay / daysInMonth) * 100)
   }, [currentMonth])
