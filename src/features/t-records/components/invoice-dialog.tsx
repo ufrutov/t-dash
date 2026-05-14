@@ -252,7 +252,16 @@ export function InvoiceDialog({
       open={open}
       onOpenChange={onOpenChange}
       title={`Invoice - ${format(currentMonth, 'MMMM yyyy')}`}
-      description='Monthly records grouped by week'
+      description={
+        <div className='flex justify-between'>
+          <p>{'Monthly records grouped by week'}</p>
+          <div className='flex gap-4 pr-4 text-primary'>
+            <span>Total:</span>
+            <span className='font-bold'>{monthTotal}h</span>
+            <span className='font-bold'>${monthTotalEarnings.toFixed(2)}</span>
+          </div>
+        </div>
+      }
       className='sm:max-w-5xl'
     >
       <ScrollArea className='max-h-[70vh] pr-4'>

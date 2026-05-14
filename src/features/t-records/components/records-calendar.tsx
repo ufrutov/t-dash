@@ -8,6 +8,11 @@ import {
 } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { Calendar, CalendarDayButton } from '@/components/ui/calendar2'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import type { RecordType } from '../data/schema'
 
 type RecordsCalendarProps = {
@@ -58,16 +63,23 @@ export function RecordsCalendar({
 
   return (
     <div className='relative'>
-      <div className='absolute top-8 left-0 w-full px-2'>
+      <div className='absolute top-8 left-0 z-10 w-full px-2'>
         <div className='relative h-1.5 w-full overflow-hidden rounded-full bg-muted'>
           {/* Potential Progress - only show for current month */}
           {isCurrentMonth && (
-            <div
-              className='absolute top-0 left-0 h-1.5 max-w-full rounded-full bg-pink-500 transition-all duration-500 ease-out'
-              style={{
-                width: `${potentialProgress}%`,
-              }}
-            />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className='absolute top-0 left-0 h-1.5 max-w-full cursor-pointer rounded-full bg-pink-500 transition-all duration-500 ease-out'
+                  style={{
+                    width: `${potentialProgress}%`,
+                  }}
+                />
+              </TooltipTrigger>
+              <TooltipContent side='bottom' align='end' className='bg-pink-500'>
+                <p>{(potentialProgress - monthTotal).toFixed(1)}h</p>
+              </TooltipContent>
+            </Tooltip>
           )}
           {/* Actual Progress */}
           <div
