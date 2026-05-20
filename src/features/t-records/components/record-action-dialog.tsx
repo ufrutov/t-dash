@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { type z } from 'zod'
 import { format, parseISO } from 'date-fns'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import LoadingBar, { type LoadingBarRef } from 'react-top-loading-bar'
 import { toast } from 'sonner'
 import { createRecord, updateRecord, deleteRecord } from '@/lib/records'
 import { useSupabase } from '@/hooks/use-supabase'
@@ -43,6 +44,9 @@ export function RecordActionDialog({
 }: RecordActionDialogProps) {
   const { projects, activeProjectId } = useSupabase()
   const isEdit = !!record
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const loadingBarRef = useRef<LoadingBarRef>(null)
 
   const form = useForm({
     resolver: zodResolver(recordFormSchema),
@@ -86,7 +90,16 @@ export function RecordActionDialog({
     }
   }, [open, record, activeProjectId, form])
 
+  useEffect(() => {
+    if (isSubmitting || isDeleting) {
+      loadingBarRef.current?.continuousStart()
+    } else {
+      loadingBarRef.current?.complete()
+    }
+  }, [isSubmitting, isDeleting])
+
   const onSubmit = async (values: RecordForm) => {
+    setIsSubmitting(true)
     try {
       if (isEdit && record) {
         await updateRecord(record.id, values)
@@ -102,11 +115,14 @@ export function RecordActionDialog({
       toast.error(
         error instanceof Error ? error.message : 'Something went wrong'
       )
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   const handleDelete = async () => {
     if (!record) return
+    setIsDeleting(true)
     try {
       await deleteRecord(record.id)
       toast.success('Record deleted successfully')
@@ -117,6 +133,8 @@ export function RecordActionDialog({
       toast.error(
         error instanceof Error ? error.message : 'Failed to delete record'
       )
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -136,6 +154,16 @@ export function RecordActionDialog({
           : "Create a new record here. Click save when you're done."
       }
     >
+      {(isSubmitting || isDeleting) && (
+        <div className='absolute top-0 left-0 w-full overflow-hidden'>
+          <LoadingBar
+            color='#ec4899'
+            ref={loadingBarRef}
+            shadow={true}
+            height={3}
+          />
+        </div>
+      )}
       <div className='py-1'>
         <Form {...form}>
           <form
@@ -308,13 +336,22 @@ export function RecordActionDialog({
       </div>
       <DialogFooter className='flex justify-between'>
         {isEdit && (
-          <Button type='button' variant='destructive' onClick={handleDelete}>
-            Delete
+          <Button
+            type='button'
+            variant='destructive'
+            onClick={handleDelete}
+            disabled={isDeleting || isSubmitting}
+          >
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         )}
         <div className='ml-auto flex gap-2'>
-          <Button type='submit' form='record-form'>
-            {isEdit ? 'Update' : 'Save'}
+          <Button
+            type='submit'
+            form='record-form'
+            disabled={isSubmitting || isDeleting}
+          >
+            {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Save'}
           </Button>
         </div>
       </DialogFooter>
