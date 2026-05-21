@@ -19,12 +19,16 @@ type RecordsCalendarProps = {
   data: RecordType[]
   currentMonth: Date
   onMonthChange: (date: Date) => void
+  selectedDate: Date | undefined
+  onDateSelect: (date: Date | undefined) => void
 }
 
 export function RecordsCalendar({
   data,
   currentMonth,
   onMonthChange,
+  selectedDate,
+  onDateSelect,
 }: RecordsCalendarProps) {
   const [potentialProgress, setPotentialProgress] = useState(0)
 
@@ -100,6 +104,8 @@ export function RecordsCalendar({
         modifiers={{ hasRecord: recordDates }}
         defaultMonth={currentMonth}
         onMonthChange={onMonthChange}
+        selected={selectedDate}
+        onSelect={onDateSelect}
         weekStartsOn={1}
         formatters={{
           formatMonthDropdown: (date) => {
@@ -122,7 +128,7 @@ export function RecordsCalendar({
           },
           DayButton: ({ children, modifiers, day, ...props }) => {
             const isWeekend = day.date.getDay() === 0 || day.date.getDay() === 6
-            const { hasRecord } = modifiers
+            const { hasRecord, today: isToday } = modifiers
             const key = format(day.date, 'yyyy-MM-dd')
             const hours = timeByDate.get(key)
 
@@ -132,9 +138,10 @@ export function RecordsCalendar({
                 modifiers={modifiers}
                 {...props}
                 className={cn(
-                  'gap-0 rounded-xs text-xs font-semibold',
+                  'gap-0 rounded-sm text-xs font-semibold',
                   isWeekend && 'text-muted-foreground',
-                  hasRecord ? 'bg-gray-100' : 'border-accent'
+                  hasRecord ? 'bg-muted' : 'border-accent',
+                  isToday && 'border border-pink-500'
                 )}
               >
                 {children}

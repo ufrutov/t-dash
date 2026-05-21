@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { format } from 'date-fns'
 import { Plus, Printer } from 'lucide-react'
 import { useSupabase } from '@/hooks/use-supabase'
@@ -12,18 +12,33 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { InvoiceDialog } from './components/invoice-dialog'
 import { RecordActionDialog } from './components/record-action-dialog'
 import { RecordsCalendar } from './components/records-calendar'
+import { RecordsProjects } from './components/records-projects'
 import { RecordsSkeleton } from './components/records-skeleton'
 import { TasksTable } from './components/records-table'
 import { recordSchema, type RecordType } from './data/schema'
 
 export function Records() {
-  const { records, recordsLoading, domains, activeDomainId, refetchRecords } =
-    useSupabase()
+  const {
+    records,
+    recordsLoading,
+    projects,
+    domains,
+    activeDomainId,
+    refetchRecords,
+  } = useSupabase()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [invoiceOpen, setInvoiceOpen] = useState(false)
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const originalTitle = useRef<string>(document.title)
   const data = recordSchema.array().parse(records)
+
+  const filteredData = useMemo(() => {
+    if (!selectedDate) return data as RecordType[]
+    return (data as RecordType[]).filter(
+      (r) => r.date === format(selectedDate, 'yyyy-MM-dd')
+    )
+  }, [data, selectedDate])
 
   const handleMonthChange = (date: Date) => {
     setCurrentMonth(date)
@@ -77,17 +92,25 @@ export function Records() {
         </div>
 
         <div className='flex flex-col gap-4 sm:flex-row'>
-          <RecordsCalendar
-            data={data as RecordType[]}
-            currentMonth={currentMonth}
-            onMonthChange={handleMonthChange}
-          />
+          <div className='flex flex-col gap-4'>
+            <RecordsCalendar
+              data={data as RecordType[]}
+              currentMonth={currentMonth}
+              onMonthChange={handleMonthChange}
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+            />
+            <RecordsProjects
+              projects={projects}
+              records={data as RecordType[]}
+            />
+          </div>
 
           {recordsLoading ? (
             <RecordsSkeleton />
           ) : (
             <div className='min-w-0 flex-1'>
-              <TasksTable data={data as RecordType[]} month={currentMonth} />
+              <TasksTable data={filteredData} month={currentMonth} />
             </div>
           )}
         </div>
