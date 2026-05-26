@@ -1,0 +1,6 @@
+packages:
+  - "."
+
+allowBuilds:
+  "@clerk/shared": true
+  "@swc/core": true
