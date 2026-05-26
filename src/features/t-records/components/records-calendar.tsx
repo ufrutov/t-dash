@@ -56,7 +56,7 @@ export function RecordsCalendar({
     const daysInMonth = getDaysInMonth(currentMonth)
     const currentDay = getDate(new Date())
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPotentialProgress((currentDay / daysInMonth) * 100)
+    setPotentialProgress(Math.round((currentDay / daysInMonth) * 100))
   }, [currentMonth])
 
   const recordDates = data.map((r) => parseISO(r.date))
@@ -81,7 +81,7 @@ export function RecordsCalendar({
                 />
               </TooltipTrigger>
               <TooltipContent side='bottom' align='end' className='bg-pink-500'>
-                <p>{(potentialProgress - monthTotal).toFixed(1)}h</p>
+                <p>{(potentialProgress - monthTotal).toFixed(0)}h</p>
               </TooltipContent>
             </Tooltip>
           )}
