@@ -60,6 +60,12 @@
     "zod": "^4.3.6",
     "zustand": "^5.0.12"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "@swc/core"
+    ]
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@faker-js/faker": "^10.4.0",
