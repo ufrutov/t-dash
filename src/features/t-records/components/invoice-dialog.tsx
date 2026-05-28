@@ -118,40 +118,42 @@ export function InvoiceDialog({
             <tr>
               <th>Date</th>
               <th>Project</th>
-              <th>Title</th>
-              <th>Description</th>
+              <th>Activity</th>
               <th>Hours</th>
-              <th>Rate</th>
+              <th style="text-align: right;">Rate</th>
             </tr>
           </thead>
           <tbody>
             ${weekGroups
-              .map(
-                (group) => `
-              <tr class="week-header">
-                <td colspan="6">Week: ${group.weekLabel}</td>
-              </tr>
-              ${group.records
-                .map((record) => {
-                  const rate = getRate(record.project_id)
-                  const earnings = rate * record.time_spent
-                  return `
-                <tr>
-                  <td>${format(parseISO(record.date), 'MMM d')}</td>
-                  <td>${getProjectTitle(record.project_id)}</td>
-                  <td>${record.title}</td>
-                  <td>${record.description || ''}</td>
-                  <td>${record.time_spent}h</td>
-                  <td>$${earnings.toFixed(2)}</td>
-                </tr>
-              `
+              .map((group) => {
+                // Group records by day
+                const dayMap = new Map()
+                group.records.forEach((record) => {
+                  const dayKey = format(parseISO(record.date), 'yyyy-MM-dd')
+                  if (!dayMap.has(dayKey)) dayMap.set(dayKey, [])
+                  dayMap.get(dayKey).push(record)
                 })
-                .join('')}
-            `
-              )
+                let rows = `<tr class="week-header"><td colspan="6">Week: ${group.weekLabel}</td></tr>`
+                dayMap.forEach((records: RecordType[], _dayKey: string) => {
+                  records.forEach((record: RecordType, idx: number) => {
+                    const rate = getRate(record.project_id)
+                    const earnings = rate * record.time_spent
+                    rows += `
+                        <tr>
+                          ${idx === 0 ? `<td rowspan="${records.length}">${format(parseISO(record.date), 'MMM d')}</td>` : ''}
+                          <td>${getProjectTitle(record.project_id)}</td>
+                          <td><strong>${record.title}</strong>: ${record.description || ''}</td>
+                          <td>${record.time_spent}h</td>
+                          <td style="text-align: right;">$${earnings.toFixed(2)}</td>
+                        </tr>
+                      `
+                  })
+                })
+                return rows
+              })
               .join('')}
             <tr class="total-row">
-              <td colspan="5" style="text-align: right;">${format(currentMonth, 'MMMM yyyy')} Total:</td>
+              <td colspan="4" style="text-align: right;">${format(currentMonth, 'MMMM yyyy')} Total:</td>
               <td>$${monthTotalEarnings.toFixed(2)}</td>
             </tr>
           </tbody>
