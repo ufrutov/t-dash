@@ -98,6 +98,22 @@ export function RecordActionDialog({
     }
   }, [isSubmitting, isDeleting])
 
+  const watchedLink = form.watch('link') ?? ''
+
+  useEffect(() => {
+    if (!form.getValues('title')) {
+      const pullMatch = watchedLink.match(/pull\/(\d+)/)
+      if (pullMatch) {
+        form.setValue('title', `PR #${pullMatch[1]}`)
+        return
+      }
+      const issueMatch = watchedLink.match(/issues\/(\d+)/)
+      if (issueMatch) {
+        form.setValue('title', `Issue #${issueMatch[1]}`)
+      }
+    }
+  }, [watchedLink, form])
+
   const onSubmit = async (values: RecordForm) => {
     setIsSubmitting(true)
     try {
