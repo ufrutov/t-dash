@@ -212,6 +212,7 @@ export function RecordActionDialog({
                       onValueChange={(value) => field.onChange(Number(value))}
                       placeholder='Select a project'
                       className='w-full'
+                      isControlled
                       items={projects.map((p) => ({
                         label: p.title,
                         value: String(p.id),
