@@ -114,6 +114,19 @@ export function RecordActionDialog({
     }
   }, [watchedLink, form])
 
+  const defaultProjectId = activeProjectId || 0
+
+  useEffect(() => {
+    if (isEdit || !watchedLink) return
+    const linkLower = watchedLink.toLowerCase()
+    const matched = projects.find((p) =>
+      linkLower.includes(p.title.toLowerCase())
+    )
+    if (matched && form.getValues('project_id') === defaultProjectId) {
+      form.setValue('project_id', matched.id)
+    }
+  }, [watchedLink, projects, isEdit, form, defaultProjectId])
+
   const onSubmit = async (values: RecordForm) => {
     setIsSubmitting(true)
     try {
