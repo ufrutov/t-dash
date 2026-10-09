@@ -6,6 +6,7 @@
 #   tlogs.sh check                       verify config + connectivity
 #   tlogs.sh projects                    list projects (id, title, link)
 #   tlogs.sh records [FROM] [TO]         list records as TSV (default: last 7 days)
+#   tlogs.sh list FROM TO [project_id]   human-readable listing for a period, grouped by date, with totals
 #   tlogs.sh lookup [URL...]             resolve the project from URLs / git remote + current folder name
 #   tlogs.sh post [--dry-run] FILE|-     insert one record (object) or many (array); --dry-run validates only
 #   tlogs.sh delete ID                   delete exactly one record by id (only on user request)
@@ -82,6 +83,38 @@ cmd_records() {
   local from="${1:-$(date -d '7 days ago' +%F)}" to="${2:-$(date +%F)}"
   api GET "records?select=id,date,project_id,time_spent,title,category,link,description&date=gte.$from&date=lte.$to&order=date.desc,id.desc" |
     jq -r '.[] | [.id, .date, .project_id, "\(.time_spent)h", .category, .title, (.description | if length > 80 then .[0:80] + "…" else . end)] | @tsv'
+}
+
+# Human-readable listing of existing records for a period: joins project titles,
+# groups by date, and totals by day / project / overall. Read-only.
+cmd_list() {
+  load_config
+  [[ "${2:-}" ]] || die "usage: tlogs.sh list FROM TO [project_id]"
+  local from="$1" to="$2"
+  local project_id="${3:-}"
+  local filter="date=gte.$from&date=lte.$to"
+  [[ -n "$project_id" ]] && filter="$filter&project_id=eq.$project_id"
+  local projects records
+  projects=$(api GET 'projects?select=id,title')
+  records=$(api GET "records?select=id,date,project_id,time_spent,category,title,link,description&${filter}&order=date.desc,id.asc")
+  jq -rn --argjson P "$projects" --argjson R "$records" --arg from "$from" --arg to "$to" '
+    (reduce $P[] as $p ({}; .[$p.id | tostring] = $p.title)) as $names
+    | def pname: $names[.project_id | tostring] // "project \(.project_id)";
+    if ($R | length) == 0 then "No records between \($from) and \($to)."
+    else
+      ( $R | group_by(.date) | sort_by(.[0].date) | reverse[]
+        | "## \(.[0].date)  (\([.[].time_spent] | add)h)",
+          (.[] | "- [\(.id)] " + pname + "  ·  \(.time_spent)h  ·  \(.category)  ·  \(.title)"
+                + (if .link != "" then "  ·  \(.link)" else "" end)),
+          "" ),
+      "By project:",
+      ( $R | group_by(.project_id)
+        | map({name: (.[0] | pname), hours: ([.[].time_spent] | add)})
+        | sort_by(-.hours)[] | "  \(.name): \(.hours)h" ),
+      "",
+      "TOTAL \($from)..\($to): \([$R[].time_spent] | add)h across \($R | length) entries"
+    end
+  '
 }
 
 # Resolve the target project. Inputs: each URL / git remote given as an argument, plus
@@ -226,9 +259,10 @@ case "${1:-}" in
   check)    shift; cmd_check "$@" ;;
   projects) shift; cmd_projects "$@" ;;
   records)  shift; cmd_records "$@" ;;
+  list)     shift; cmd_list "$@" ;;
   lookup)   shift; cmd_lookup "$@" ;;
   post)     shift; cmd_post "$@" ;;
   delete)   shift; cmd_delete "$@" ;;
   session)  shift; cmd_session "$@" ;;
-  *) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+  *) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
 esac

@@ -1,11 +1,13 @@
 # time-logs skill
 
-Claude Code skill that turns a coding session into t-dash time log entries and, on request, inserts them into the `records` table through the Supabase REST API.
+Claude Code skill that turns a coding session into t-dash time log entries and, on request, inserts them into the `records` table through the Supabase REST API. It can also list what's already logged for a period.
 
 ```
 /time-logs                 # 1 entry, preview, then asks before adding
 /time-logs 2 post          # 2 entries, added to the DB after showing them
 /time-logs 1 2h --short    # 1 entry, 2 hours, stores the Shorter description
+/time-logs list this week  # existing entries for the period, grouped by date, with totals
+/time-logs list September Purenutrition
 ```
 
 Defaults: 1 entry, 1 hour per entry, today's date. The project is resolved from the entry's link or the git folder name (like the UI's auto-select); otherwise it asks.
@@ -24,4 +26,4 @@ Requires `bash`, `curl` and `jq`.
 
 ## Helper commands (`scripts/tlogs.sh`)
 
-`check`, `projects`, `records [FROM] [TO]`, `lookup [URL...]`, `post [--dry-run] FILE|-`, `delete ID`, `session [SESSION_ID]`. Run it without arguments for usage.
+`check`, `projects`, `records [FROM] [TO]`, `list FROM TO [project_id]`, `lookup [URL...]`, `post [--dry-run] FILE|-`, `delete ID`, `session [SESSION_ID]`. Run it without arguments for usage.

@@ -1,7 +1,7 @@
 ---
 name: time-logs
-description: Generate time log entries for the t-dash daily report from the current Claude Code session (plus git history), and optionally add them straight to the t-dash database via its Supabase API
-argument-hint: "[N entries, default 1] [post] [--short] [--date YYYY-MM-DD] [Nh] [project] [focus notes]"
+description: Generate time log entries for the t-dash daily report from the current Claude Code session (plus git history) and optionally add them to the t-dash database via its Supabase API, or list existing entries for a period (e.g. "list this week")
+argument-hint: "[N entries, default 1] [post] [--short] [--date YYYY-MM-DD] [Nh] [project] [focus notes] | list [period] [project]"
 disable-model-invocation: true
 allowed-tools:
   - Bash(git log *)
@@ -16,9 +16,26 @@ allowed-tools:
 
 # Time Log Generator (t-dash)
 
-Turn this session's work into t-dash time log entries and, when asked, insert them into the `records` table. Invocation: `/time-logs $ARGUMENTS`. Today: !`date +%F`
+Turn this session's work into t-dash time log entries and, when asked, insert them into the `records` table — or list the entries already logged for a period. Invocation: `/time-logs $ARGUMENTS`. Today: !`date +%F`
 
-## 1. Arguments
+## 0. Mode
+
+Two modes share this skill:
+
+- **List mode** — `$ARGUMENTS` contains `list`, "show", "what did I log", "how many hours" or similar: the user wants **existing** records, not new ones. Go straight to section 1a and stop; do not generate or post anything.
+- **Generate mode** (default) — everything else: produce new entries from this session, as in sections 1–6 below.
+
+## 1a. List mode
+
+Resolve a date range from the wording (today is given above): "today" / no period → today..today; "yesterday" → that day; "this week" → Monday..today; "last week" → previous Mon..Sun; "this month" / "September" / no year → that calendar month; an explicit range or `YYYY-MM-DD..YYYY-MM-DD` → as given. If a project name is mentioned, resolve its id with `${CLAUDE_SKILL_DIR}/scripts/tlogs.sh projects` (match by title) and pass it through.
+
+```bash
+${CLAUDE_SKILL_DIR}/scripts/tlogs.sh list FROM TO [project_id]
+```
+
+This is read-only and needs no confirmation. Relay its output as-is (it is already grouped by date with per-project and overall totals) — do not recompute or re-sort it, and do not reformat it into a markdown table. If it reports no records, say so plainly. Never call `records` directly in this skill; `list` is the intended entry point for reading.
+
+## 1. Arguments (generate mode)
 
 | Setting | Detect | Default |
 |---|---|---|
